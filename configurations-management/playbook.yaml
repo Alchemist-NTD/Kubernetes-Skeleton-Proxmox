@@ -131,3 +131,12 @@
         pip3 install -U -r requirements.txt
         ansible-playbook -i inventory/mycluster/hosts.yaml --private-key /root/.ssh/id_rsa cluster.yml
       when: step_3 is success and not ansible_check_mode
+
+- hosts: kubernetes_master_node
+  remote_user: ubuntu
+  become: true
+  tasks:
+    - name: Set kubectl default config
+      shell: |
+        mkdir -p $HOME/.kube/
+        cp /etc/kubernetes/admin.conf $HOME/.kube/config

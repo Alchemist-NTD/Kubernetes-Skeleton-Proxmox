@@ -24,12 +24,24 @@
       when: hapee_check is success and not ansible_check_mode
 
 
-- hosts: kubernetes_nodes
+- hosts: kubernetes_master_node
   remote_user: ubuntu
   become: true
   tasks:
-    - name: Forwarded ipv4 kubernetes nodes
+    - name: Forwarded ipv4 kubernetes nodes master
       command: "sudo sysctl -w net.ipv4.ip_forward=1"
+    - name: Ignoring 142 code
+      command: sudo sed -i -e 's/.*exit 142" \(.*$\)/\1/' /root/.ssh/authorized_keys
+
+
+- hosts: kubernetes_worker_node
+  remote_user: ubuntu
+  become: true
+  tasks:
+    - name: Forwarded ipv4 kubernetes nodes worker
+      command: "sudo sysctl -w net.ipv4.ip_forward=1"
+    - name: Ignoring 142 code
+      command: sudo sed -i -e 's/.*exit 142" \(.*$\)/\1/' /root/.ssh/authorized_keys
 
 
 - hosts: kubespray_server
@@ -44,6 +56,7 @@
         dest: "/root/.ssh/id_rsa"
         owner: root
         group: root
+        mode: 0600
     - name: Copy kubespray configuration
       copy:
         src: "../kubespray.tar"
@@ -60,20 +73,48 @@
       args:
         chdir: "/root"
       register: kubespray_check
-    - name: Install kubespray dependencies apt and build python 3.10
+    - name: step 0 kubespray dependencies - apt
+      environment:
+        VERSION: 3.10.13
+      apt:
+        pkg:
+          - build-essential
+          - zlib1g-dev
+          - libncurses5-dev
+          - libgdbm-dev
+          - libnss3-dev
+          - libssl-dev
+          - libreadline-dev
+          - libffi-dev
+          - libsqlite3-dev
+          - wget
+          - libbz2-dev
+      register: step_0
+      when: kubespray_check is success and kubespray_tar_check is success and not ansible_check_mode
+    - name: step 1 kubespray dependencies - download xxx
+      environment:
+        VERSION: 3.10.13
+      command: "wget https://www.python.org/ftp/python/$VERSION/Python-$VERSION.tgz"
+      register: step_1
+      when: step_0 is success and not ansible_check_mode
+    - name: step 2 python 3.10 part 1
       environment:
         VERSION: 3.10.13
       shell: |
-        sudo apt update
-        sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev
-        wget https://www.python.org/ftp/python/$VERSION/Python-$VERSION.tgz
         tar -xf Python-$VERSION.tgz
         cd  Python-$VERSION/
         ./configure --enable-optimizations
+      when: step_1 is success and not ansible_check_mode
+      register: step_2
+    - name: step 3 python 3.10 part 2
+      environment:
+        VERSION: 3.10.13
+      shell: |
+        cd  Python-$VERSION/
         make -j $(nproc)
-        sudo make altinstall
-      when: kubespray_check is success and kubespray_tar_check is success and not ansible_check_mode
-      register: apt_py_check
+        make altinstall
+      when: step_2 is success and not ansible_check_mode
+      register: step_3
     - name: Install kubespray dependencies pip and run playbook
       environment:
         VENVDIR: kubespray-venv
@@ -89,4 +130,4 @@
         pip3 install setuptools-rust
         pip3 install -U -r requirements.txt
         ansible-playbook -i inventory/mycluster/hosts.yaml --private-key /root/.ssh/id_rsa cluster.yml
-      when: apt_py_check is success and not ansible_check_mode
+      when: step_3 is success and not ansible_check_mode

@@ -11,6 +11,9 @@
 192.168.1.122
 192.168.1.123
 
+[kubespray_server]
+192.168.1.101
+
 [kubernetes_nodes:children]
 kubernetes_master_nodes
 kubernetes_worker_nodes

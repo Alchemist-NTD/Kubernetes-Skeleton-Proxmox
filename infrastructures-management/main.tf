@@ -138,7 +138,60 @@ resource "proxmox_vm_qemu" "kubernetes-load-balancer" {
         slot = 0
         storage = "pve-2"
         type = "virtio"
-        size = "32G"
+        size = "16G"
+        iothread = 1
+    }
+
+    connection {
+        type     = "ssh"
+        agent    = false
+        user     = "ubuntu"
+        password = var.vm_password
+        host     = self.default_ipv4_address
+    }
+
+    lifecycle {
+        ignore_changes = [
+            network,
+        ]
+    }
+}
+
+# kubespray executor server
+resource "proxmox_vm_qemu" "kubespray-server" {
+    count = 1
+    name = "kubespray-server-${count.index + 1}"
+    desc = "kubespray server"
+    scsihw  = "virtio-scsi-pci"
+    os_type = "cloud-init"
+
+    target_node = "proxmox"
+
+    clone = var.template_name
+    cores = 2
+    sockets = 1
+    cpu = "host"
+    memory = 2048
+
+    network {
+        bridge = "vmbr0"
+        model = "virtio"
+    }
+
+    ci_wait = 40
+    ipconfig0 = "ip=192.168.1.10${count.index + 1}/24,gw=192.168.1.1"
+    ciuser = "ubuntu"
+    cipassword = var.vm_password
+    ssh_user = "ubuntu"
+    sshkeys =  <<EOF
+        ${var.ssh_key}
+    EOF
+
+    disk {
+        slot = 0
+        storage = "pve-2"
+        type = "virtio"
+        size = "16G"
         iothread = 1
     }
 

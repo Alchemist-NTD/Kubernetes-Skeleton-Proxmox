@@ -1,3 +1,5 @@
 #!/bin/bash
 
-ansible-playbook -i ./inventory/hosts haproxy.yaml
+tar -cvf ../kubespray.tar ../kubespray
+
+ansible-playbook -i ./inventory/hosts playbook.yaml

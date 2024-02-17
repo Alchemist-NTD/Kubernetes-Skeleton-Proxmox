@@ -1,3 +1,4 @@
+kubespray/
 **/terraform-plugin-proxmox.log
 
 # Local .terraform directories

@@ -1,212 +1,69 @@
-# kubernetes master nodes
-resource "proxmox_vm_qemu" "kubernetes-master-nodes" {
-    count = 3
-    name = "master-node-${count.index + 1}"
-    desc = "k8s ubuntu server master nodes"
-    scsihw  = "virtio-scsi-pci"
-    os_type = "cloud-init"
+module "kubernetes-master-nodes" {
+    source = "./module/kubernetes"
 
-    target_node = "proxmox"
-
-    clone = var.template_name
-    cores = 2
-    sockets = 1
-    cpu = "host"
-    memory = 4096
-
-    network {
-        bridge = "vmbr0"
-        model = "virtio"
-    }
-
-    ci_wait = 40
-    ipconfig0 = "ip=192.168.1.11${count.index + 1}/24,gw=192.168.1.1"
-    ciuser = "ubuntu"
-    cipassword = var.vm_password
-    ssh_user = "ubuntu"
-    sshkeys =  <<EOF
-        ${var.ssh_key}
-    EOF
-
-    disk {
-        slot = 0
-        storage = "pve-2"
-        type = "virtio"
-        size = "32G"
-        iothread = 1
-    }
-
-    connection {
-        type     = "ssh"
-        agent    = false
-        user     = "ubuntu"
-        password = var.vm_password
-        host     = self.default_ipv4_address
-    }
-
-    lifecycle {
-        ignore_changes = [
-            network,
-        ]
-    }
+    node_count    = 3
+    node_type     = "master"
+    node_desc     = "k8s ubuntu server master nodes"
+    node_memory   = 4096
+    node_ip_base  = "192.168.1.11"
+    node_disk_size = "32G"
+    template_name = var.template_name
+    vm_password   = var.vm_password
+    ssh_key       = var.ssh_key
 }
 
-# kubernetes worker nodes
-resource "proxmox_vm_qemu" "kubernetes-worker-nodes" {
-    count = 3
-    name = "worker-node-${count.index + 1}"
-    desc = "k8s ubuntu server worker nodes"
-    scsihw  = "virtio-scsi-pci"
-    os_type = "cloud-init"
+module "kubernetes-worker-nodes" {
+    source = "./module/kubernetes"
 
-    target_node = "proxmox"
-
-    clone = var.template_name
-    cores = 2
-    sockets = 1
-    cpu = "host"
-    memory = 4096
-
-    network {
-        bridge = "vmbr0"
-        model = "virtio"
-    }
-
-    ci_wait = 40
-    ipconfig0 = "ip=192.168.1.12${count.index + 1}/24,gw=192.168.1.1"
-    ciuser = "ubuntu"
-    cipassword = var.vm_password
-    ssh_user = "ubuntu"
-    sshkeys =  <<EOF
-        ${var.ssh_key}
-    EOF
-
-    disk {
-        slot = 0
-        storage = "pve-2"
-        type = "virtio"
-        size = "32G"
-        iothread = 1
-    }
-
-    connection {
-        type     = "ssh"
-        agent    = false
-        user     = "ubuntu"
-        password = var.vm_password
-        host     = self.default_ipv4_address
-    }
-
-    lifecycle {
-        ignore_changes = [
-            network,
-        ]
-    }
+    node_count    = 3
+    node_type     = "worker"
+    node_desc     = "k8s ubuntu server worker nodes"
+    node_memory   = 4096
+    node_ip_base  = "192.168.1.12"
+    node_disk_size = "32G"
+    template_name = var.template_name
+    vm_password   = var.vm_password
+    ssh_key       = var.ssh_key
 }
 
-# kubernetes cluster load balancer
-resource "proxmox_vm_qemu" "kubernetes-load-balancer" {
-    count = 1
-    name = "kubernetes-lb-${count.index + 1}"
-    desc = "k8s ubuntu server load balancer"
-    scsihw  = "virtio-scsi-pci"
-    os_type = "cloud-init"
+module "kubernetes-load-balancer" {
+    source = "./module/kubernetes"
 
-    target_node = "proxmox"
-
-    clone = var.template_name
-    cores = 2
-    sockets = 1
-    cpu = "host"
-    memory = 2048
-
-    network {
-        bridge = "vmbr0"
-        model = "virtio"
-    }
-
-    ci_wait = 40
-    ipconfig0 = "ip=192.168.1.13${count.index + 1}/24,gw=192.168.1.1"
-    ciuser = "ubuntu"
-    cipassword = var.vm_password
-    ssh_user = "ubuntu"
-    sshkeys =  <<EOF
-        ${var.ssh_key}
-    EOF
-
-    disk {
-        slot = 0
-        storage = "pve-2"
-        type = "virtio"
-        size = "16G"
-        iothread = 1
-    }
-
-    connection {
-        type     = "ssh"
-        agent    = false
-        user     = "ubuntu"
-        password = var.vm_password
-        host     = self.default_ipv4_address
-    }
-
-    lifecycle {
-        ignore_changes = [
-            network,
-        ]
-    }
+    node_count    = 1
+    node_type     = "load-balancer"
+    node_desc     = "k8s ubuntu server load balancer"
+    node_memory   = 2048
+    node_ip_base  = "192.168.1.13"
+    node_disk_size = "16G"
+    template_name = var.template_name
+    vm_password   = var.vm_password
+    ssh_key       = var.ssh_key
 }
 
-# kubespray executor server
-resource "proxmox_vm_qemu" "kubespray-server" {
-    count = 1
-    name = "kubespray-server-${count.index + 1}"
-    desc = "kubespray server"
-    scsihw  = "virtio-scsi-pci"
-    os_type = "cloud-init"
+module "kubespray-server" {
+    source = "./module/kubernetes"
 
-    target_node = "proxmox"
-
-    clone = var.template_name
-    cores = 2
-    sockets = 1
-    cpu = "host"
-    memory = 2048
-
-    network {
-        bridge = "vmbr0"
-        model = "virtio"
-    }
-
-    ci_wait = 40
-    ipconfig0 = "ip=192.168.1.10${count.index + 1}/24,gw=192.168.1.1"
-    ciuser = "ubuntu"
-    cipassword = var.vm_password
-    ssh_user = "ubuntu"
-    sshkeys =  <<EOF
-        ${var.ssh_key}
-    EOF
-
-    disk {
-        slot = 0
-        storage = "pve-2"
-        type = "virtio"
-        size = "16G"
-        iothread = 1
-    }
-
-    connection {
-        type     = "ssh"
-        agent    = false
-        user     = "ubuntu"
-        password = var.vm_password
-        host     = self.default_ipv4_address
-    }
-
-    lifecycle {
-        ignore_changes = [
-            network,
-        ]
-    }
+    node_count    = 1
+    node_type     = "kubespray-server"
+    node_desc     = "kubespray server"
+    node_memory   = 2048
+    node_ip_base  = "192.168.1.10"
+    node_disk_size = "16G"
+    template_name = var.template_name
+    vm_password   = var.vm_password
+    ssh_key       = var.ssh_key
 }
 
+module "single-nodes" {
+    source = "./module/kubernetes"
+
+    node_count    = 1
+    node_type     = "ubuntu-vm"
+    node_desc     = "ubuntu server nodes"
+    node_memory   = 4096
+    node_ip_base  = "192.168.1.9"
+    node_disk_size = "32G"
+    template_name = var.template_name
+    vm_password   = var.vm_password
+    ssh_key       = var.ssh_key
+}

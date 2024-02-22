@@ -1,2 +1,46 @@
 ---
 # tasks file for prometheus-server
+- name: Update and upgrade apt
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    upgrade: yes
+
+- name: Create a System User for Prometheus
+  become: yes
+  become_user: root
+  ansible.builtin.shell: |
+    groupadd --system prometheus
+    useradd -s /sbin/nologin --system -g prometheus prometheus
+  args:
+    executable: /bin/bash
+
+- name: Create Directories for Prometheus
+  become: yes
+  become_user: root
+  ansible.builtin.shell: |
+    mkdir /etc/prometheus
+    mkdir /var/lib/prometheus
+  args:
+    executable: /bin/bash
+
+- name: Download Prometheus and Extract Files
+  become: yes
+  become_user: root
+  ansible.builtin.shell: |
+    wget https://github.com/prometheus/prometheus/releases/download/v2.43.0/prometheus-2.43.0.linux-amd64.tar.gz
+    tar vxf prometheus*.tar.gz
+  args:
+    executable: /bin/bash
+
+- name: Move the Binary Files & Set Owner
+  become: yes
+  become_user: root
+  ansible.builtin.shell: |
+    cd prometheus*/
+    mv prometheus /usr/local/bin
+    mv promtool /usr/local/bin
+    chown prometheus:prometheus /usr/local/bin/prometheus
+    chown prometheus:prometheus /usr/local/bin/promtool
+  args:
+    executable: /bin/bash

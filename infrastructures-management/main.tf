@@ -54,15 +54,29 @@
 #     ssh_key       = var.ssh_key
 # }
 
-module "single-nodes" {
+module "jellyfin-nodes" {
     source = "./module/kubernetes"
 
     node_count    = 1
-    node_type     = "ubuntu-vm"
-    node_desc     = "ubuntu server nodes"
-    node_memory   = 4096
+    node_type     = "jellyfin"
+    node_desc     = "jellyfin host nodes"
+    node_memory   = 8192
     node_ip_base  = "192.168.1.9"
     node_disk_size = "32G"
+    template_name = var.template_name
+    vm_password   = var.vm_password
+    ssh_key       = var.ssh_key
+}
+
+module "minio-nodes" {
+    source = "./module/kubernetes"
+
+    node_count    = 1
+    node_type     = "minio"
+    node_desc     = "minio storage nodes"
+    node_memory   = 8192
+    node_ip_base  = "192.168.1.8"
+    node_disk_size = "128G"
     template_name = var.template_name
     vm_password   = var.vm_password
     ssh_key       = var.ssh_key

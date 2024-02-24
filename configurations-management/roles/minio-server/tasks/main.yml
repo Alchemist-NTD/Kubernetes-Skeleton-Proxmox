@@ -1,0 +1,29 @@
+---
+# tasks file for minio-server
+- name: Download MinIO install packages and Extract
+  become: yes
+  become_user: root
+  ansible.builtin.shell: |
+    wget https://dl.min.io/server/minio/release/linux-amd64/archive/minio_20240217011557.0.0_amd64.deb -O minio.deb
+    dpkg -i minio.deb
+  args:
+    executable: /bin/bash
+
+- name: Config MinIO System User and create mount data
+  become: yes
+  become_user: root
+  ansible.builtin.shell: |
+    mkdir -p /mnt/disk1
+    groupadd -r minio-user
+    useradd -M -r -g minio-user minio-user
+    chown minio-user:minio-user /mnt/disk1
+  args:
+    executable: /bin/bash
+
+- name: Copy the MinIO configuration env file
+  become: yes
+  become_user: root
+  template:
+    src: files/minio.env
+    dest: /etc/default/minio
+  notify: initial_minio_service

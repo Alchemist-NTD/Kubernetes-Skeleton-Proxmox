@@ -20,3 +20,9 @@ kubernetes_worker_nodes
 
 [single_test_node]
 192.168.1.111
+
+[minio_server]
+192.168.1.81
+
+[jellyfin_server]
+192.168.1.91

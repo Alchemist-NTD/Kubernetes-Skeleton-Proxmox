@@ -1,0 +1,9 @@
+# - hosts: jellyfin_server
+#   roles:
+#     - role: "./roles/jellyfin-server"
+
+- hosts: minio_server
+  remote_user: ubuntu
+  become: true
+  roles:
+    - minio-server

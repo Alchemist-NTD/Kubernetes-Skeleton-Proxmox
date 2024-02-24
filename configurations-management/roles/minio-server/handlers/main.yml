@@ -1,0 +1,13 @@
+---
+# handlers file for minio-server
+- name: Start MinIO service
+  service:
+    name: minio
+    state: started
+  listen: initial_minio_service
+
+- name: Enable MinIO service
+  service:
+    name: minio
+    enabled: yes
+  listen: initial_minio_service

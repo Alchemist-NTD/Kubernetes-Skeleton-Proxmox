@@ -1,2 +1,30 @@
 ---
 # tasks file for jellyfin-server
+- name: Download Jellyfin install packages and Extract
+  become: yes
+  become_user: root
+  ansible.builtin.shell: |
+    curl https://repo.jellyfin.org/install-debuntu.sh | sudo bash
+    diff <( curl -s https://repo.jellyfin.org/install-debuntu.sh -o install-debuntu.sh; sha256sum install-debuntu.sh ) <( curl -s https://repo.jellyfin.org/install-debuntu.sh.sha256sum )
+    mkdir -p /home/ubuntu/jellyfin
+  args:
+    executable: /bin/bash
+
+- name: Copy the MinIO credential file
+  become: yes
+  become_user: root
+  template:
+    src: files/.s3creds
+    dest: /home/ubuntu/.s3creds
+    mode: 0600
+
+- name: Config s3fs-fuse to mount data
+  become: yes
+  become_user: root
+  ansible.builtin.shell: |
+    curl -s https://install.zerotier.com | sudo bash
+    apt install s3fs
+    s3fs jellyfin /home/ubuntu/jellyfin -o passwd_file=/home/ubuntu/.s3creds,use_path_request_style,url=http://192.168.1.81:9000,allow_other 0 0
+    echo "s3fs jellyfin /home/ubuntu/jellyfin -o passwd_file=/home/ubuntu/.s3creds,use_path_request_style,url=http://192.168.1.81:9000,uid=111,gid=115,allow_other"
+  args:
+    executable: /bin/bash

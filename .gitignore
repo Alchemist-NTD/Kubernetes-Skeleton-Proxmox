@@ -1,3 +1,4 @@
+**/.s3creds
 kubespray/
 **/terraform-plugin-proxmox.log
 

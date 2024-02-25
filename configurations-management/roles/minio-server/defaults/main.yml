@@ -1,2 +1,3 @@
 ---
 # defaults file for minio-server
+minio_package_url: https://dl.min.io/server/minio/release/linux-amd64/archive/minio_20240217011557.0.0_amd64.deb

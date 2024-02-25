@@ -4,7 +4,7 @@
   become: yes
   become_user: root
   ansible.builtin.shell: |
-    wget https://dl.min.io/server/minio/release/linux-amd64/archive/minio_20240217011557.0.0_amd64.deb -O minio.deb
+    wget {{ minio_package_url }} -O minio.deb
     dpkg -i minio.deb
   args:
     executable: /bin/bash

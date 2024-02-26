@@ -14,6 +14,7 @@
   become_user: root
   ansible.builtin.shell: |
     mkdir -p /mnt/disk1
+    mkdir -p /etc/minio
     groupadd -r minio-user
     useradd -M -r -g minio-user minio-user
     chown minio-user:minio-user /mnt/disk1
@@ -26,4 +27,48 @@
   template:
     src: files/minio.env
     dest: /etc/default/minio
+  changed_when: true
   notify: initial_minio_service
+
+- name: Copy the MinIO service account policy file
+  become: yes
+  become_user: root
+  template:
+    src: files/policy.json
+    dest: /etc/minio/policy.json
+
+- name: Copy the MinIO system env file
+  become: yes
+  become_user: root
+  template:
+    src: files/system.env
+    dest: /etc/environment
+  changed_when: true
+
+- name: Install MinIO admin tools
+  become: yes
+  become_user: root
+  ansible.builtin.shell: |
+    . /etc/environment
+    wget https://dl.minio.io/client/mc/release/linux-amd64/mc
+    chmod +x mc
+    sudo mv mc /usr/local/bin
+  args:
+    executable: /bin/bash
+
+- name: Copy the MinIO admin config file
+  become: yes
+  become_user: root
+  template:
+    src: files/config.json.env
+    dest: /root/.mc/config.json
+  changed_when: true
+
+- name: Create MinIO service account
+  become: yes
+  become_user: root
+  ansible.builtin.shell: |
+    mc admin user add local jellyfin jellyfin
+    mc admin user svcacct add --name jellyfin --access-key $MINIO_ACCESS_ID --secret-key $MINIO_ACCESS_KEY --policy "/etc/minio/policy.json" local jellyfin
+  args:
+    executable: /bin/bash

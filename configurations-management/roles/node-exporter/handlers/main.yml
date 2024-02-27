@@ -1,0 +1,7 @@
+---
+# handlers file for node-exporter
+- name: Daemon Reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  become: yes
+  listen: reload_daemon

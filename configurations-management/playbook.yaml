@@ -1,6 +1,18 @@
 - hosts: load_balancer
   remote_user: ubuntu
   become: true
+  roles:
+    - haproxy-server
+
+- hosts: kubernetes_nodes
+  remote_user: ubuntu
+  become: true
+  roles:
+    - node-exporter
+
+- hosts: load_balancer
+  remote_user: ubuntu
+  become: true
   tasks:
     - name: Ping check host
       ping: ~

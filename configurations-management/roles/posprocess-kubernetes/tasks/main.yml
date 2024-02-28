@@ -1,0 +1,4 @@
+- name: Forwarded ipv4 kubernetes nodes worker
+  command: "sudo sysctl -w net.ipv4.ip_forward=1"
+- name: Ignoring 142 code
+  command: sudo sed -i -e 's/.*exit 142" \(.*$\)/\1/' /root/.ssh/authorized_keys

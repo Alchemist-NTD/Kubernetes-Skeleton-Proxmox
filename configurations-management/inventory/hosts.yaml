@@ -1,0 +1,59 @@
+all:
+  hosts:
+    master-01:
+      ansible_host: 192.168.1.111
+      ip: 192.168.1.111
+      access_ip: 192.168.1.111
+    master-02:
+      ansible_host: 192.168.1.112
+      ip: 192.168.1.112
+      access_ip: 192.168.1.112
+    master-03:
+      ansible_host: 192.168.1.113
+      ip: 192.168.1.113
+      access_ip: 192.168.1.113
+    worker-01:
+      ansible_host: 192.168.1.121
+      ip: 192.168.1.121
+      access_ip: 192.168.1.121
+    worker-02:
+      ansible_host: 192.168.1.122
+      ip: 192.168.1.122
+      access_ip: 192.168.1.122
+    worker-03:
+      ansible_host: 192.168.1.123
+      ip: 192.168.1.123
+      access_ip: 192.168.1.123
+    jellyfin-01:
+      ansible_host: 192.168.1.91
+      ip: 192.168.1.91
+      access_ip: 192.168.1.91
+    minio-01:
+      ansible_host: 192.168.1.81
+      ip: 192.168.1.81
+      access_ip: 192.168.1.81
+  children:
+    kube_control_plane:
+      hosts:
+        master-01:
+        master-02:
+        master-03:
+    kube_node:
+      hosts:
+        worker-01:
+        worker-02:
+        worker-03:
+    k8s_cluster:
+      children:
+        kube_control_plane:
+        kube_node:
+    single_test_node:
+      hosts:
+        master-01:
+    minio_server:
+      hosts:
+        minio-01:
+    jellyfin_server:
+      hosts:
+        jellyfin-01:
+    

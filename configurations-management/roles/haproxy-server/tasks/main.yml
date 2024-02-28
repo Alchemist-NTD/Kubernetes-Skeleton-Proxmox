@@ -1,2 +1,23 @@
 ---
 # tasks file for haproxy-server
+- name: Install Haproxy
+  ansible.builtin.apt:
+    name: haproxy
+
+- name: Copy load balancer configuration
+  copy:
+    src: "files/haproxy.cfg"
+    dest: "/etc/haproxy/haproxy.cfg"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Check if there are no errors in configuration file
+  command: "/usr/sbin/haproxy -c -f /etc/haproxy/haproxy.cfg"
+  register: hapee_check
+
+- name: Reload load balancer if the check passed
+  service:
+    name: haproxy
+    state: reloaded
+  when: hapee_check is success and not ansible_check_mode

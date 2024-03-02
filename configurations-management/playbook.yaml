@@ -25,7 +25,7 @@
   roles:
     - kubernetes-cluster
 
-- hosts: kubernetes_master_node
+- hosts: kube_control_plane
   remote_user: ubuntu
   become: true
   roles:

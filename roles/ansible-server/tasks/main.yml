@@ -24,16 +24,16 @@
   become: yes
   become_user: root
   shell: |
-    apt-add-repository ppa:ansible/ansible
-    apt update
+    apt-add-repository ppa:ansible/ansible -y
+    apt update -y
     apt install ansible -y
   args:
     chdir: "/home/ubuntu"
   register: ansible_install_check
 
-- name: Unzip ansible configuration file
+- name: Run playbook config all
   shell: |
-    ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./inventory/hosts.yaml playbook.yaml
+    ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./inventory/lite-hosts.yaml playbook.yaml -vvv
   args:
     chdir: "/home/ubuntu/configurations-management"
   when: ansible_cfg_check is success and ansible_install_check is success and not ansible_check_mode

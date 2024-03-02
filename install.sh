@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tar -cvf ./configurations-management/kubernetes-cluster/files/kubespray.tar ./kubespray
+tar -cvf ./configurations-management/roles/kubernetes-cluster/files/kubespray.tar ./kubespray
 
 tar -cvf ./roles/ansible-server/files/configurations-management.tar ./configurations-management
 

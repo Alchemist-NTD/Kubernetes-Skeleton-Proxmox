@@ -2,7 +2,7 @@
 # tasks file for kubernetes-cluster
 - name: Copy ssh key from administrator
   copy:
-    src: "/home/duy/.ssh/id_rsa"
+    src: "/root/.ssh/id_rsa"
     dest: "/root/.ssh/id_rsa"
     owner: root
     group: root

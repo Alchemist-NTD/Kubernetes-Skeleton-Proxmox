@@ -1,0 +1,39 @@
+---
+# tasks file for ansible-server
+- name: Copy ssh key from administrator
+  copy:
+    src: "/home/duy/.ssh/id_rsa"
+    dest: "/root/.ssh/id_rsa"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Copy ansible configuration
+  copy:
+    src: "files/configurations-management.tar"
+    dest: "/home/ubuntu/configurations-management.tar"
+
+- name: Unzip ansible configuration file
+  shell: |
+    tar -xvf configurations-management.tar
+  args:
+    chdir: "/home/ubuntu"
+  register: ansible_cfg_check
+
+- name: Install Ansible
+  become: yes
+  become_user: root
+  shell: |
+    apt-add-repository ppa:ansible/ansible
+    apt update
+    apt install ansible -y
+  args:
+    chdir: "/home/ubuntu"
+  register: ansible_install_check
+
+- name: Unzip ansible configuration file
+  shell: |
+    ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./inventory/hosts.yaml playbook.yaml
+  args:
+    chdir: "/home/ubuntu/configurations-management"
+  when: ansible_cfg_check is success and ansible_install_check is success and not ansible_check_mode

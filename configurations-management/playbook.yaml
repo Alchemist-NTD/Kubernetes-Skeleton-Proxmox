@@ -1,8 +1,8 @@
-# - hosts: load_balancer
-#   remote_user: ubuntu
-#   become: true
-#   roles:
-#     - haproxy-server
+- hosts: load_balancer
+  remote_user: ubuntu
+  become: true
+  roles:
+    - haproxy-server
 
 - hosts: k8s_cluster
   remote_user: ubuntu
@@ -24,12 +24,6 @@
   become: true
   roles:
     - kubernetes-cluster
-
-- hosts: kubernetes_master_node
-  remote_user: ubuntu
-  become: true
-  roles:
-    - posprocess-kubernetes
 
 - hosts: kubernetes_master_node
   remote_user: ubuntu

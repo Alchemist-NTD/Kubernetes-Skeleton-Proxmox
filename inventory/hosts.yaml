@@ -1,0 +1,7 @@
+all:
+  hosts:
+    ansible-server-1:
+      ansible_host: 42.118.20.80
+      ip: 42.118.20.80
+      access_ip: 42.118.20.80
+

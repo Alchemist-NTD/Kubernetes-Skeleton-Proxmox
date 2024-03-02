@@ -10,7 +10,7 @@
 
 - name: Copy kubespray configuration
   copy:
-    src: "../kubespray.tar"
+    src: "files/kubespray.tar"
     dest: "/root/kubespray.tar"
     owner: root
     group: root

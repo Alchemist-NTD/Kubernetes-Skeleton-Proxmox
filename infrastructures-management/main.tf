@@ -56,19 +56,19 @@ module "kubespray-server" {
     ssh_key       = var.ssh_key
 }
 
-module "ansible-server" {
-    source = "./module/kubernetes"
+# module "ansible-server" {
+#     source = "./module/kubernetes"
 
-    node_count    = 1
-    node_type     = "ansible-server"
-    node_desc     = "ansible server"
-    node_memory   = 4096
-    node_ip_base  = "192.168.1.6"
-    node_disk_size = "16G"
-    template_name = var.template_name
-    vm_password   = var.vm_password
-    ssh_key       = var.ssh_key
-}
+#     node_count    = 1
+#     node_type     = "ansible-server"
+#     node_desc     = "ansible server"
+#     node_memory   = 4096
+#     node_ip_base  = "192.168.1.6"
+#     node_disk_size = "16G"
+#     template_name = var.template_name
+#     vm_password   = var.vm_password
+#     ssh_key       = var.ssh_key
+# }
 
 # module "jellyfin-nodes" {
 #     source = "./module/kubernetes"
